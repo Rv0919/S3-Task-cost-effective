@@ -35,6 +35,26 @@ resource "aws_s3_bucket_public_access_block" "public_access" {
   restrict_public_buckets = true
 }
 
+# S3 Glacier lifecycle policy
+resource "aws_s3_bucket_lifecycle_configuration" "glacier_lifecycle" {
+  bucket = aws_s3_bucket.my_bucket.id
+
+  rule {
+    id     = "glacier_transition"
+    status = "Enabled"
+
+    filter {
+      prefix = "my_s3glacier"  # Replace "your-prefix" with your desired prefix
+    }
+
+    transition {
+      days          = 90
+      storage_class = "GLACIER"
+    }
+  }
+}
+
+
 #  CloudFront distribution to serve content from the S3 bucket
 resource "aws_cloudfront_distribution" "s3_distribution" {
   origin {
